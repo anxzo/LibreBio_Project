@@ -25,7 +25,7 @@
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
 | Phase 0 | 项目基础设施 | 🔶 50% | 🔶 17% | ❌ | ❌ | 17% |
-| Phase 1 | 核心数据类型 | 🔶 33% | 🔶 33% | ❌ | ❌ | 17% |
+| Phase 1 | 核心数据类型 | 🔶 50% | 🔶 50% | ❌ | ❌ | 25% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 4+ | CLI 工具 | ⏭ | ⏭ | ⏭ | ⏭ | — |
@@ -59,12 +59,12 @@
 |------|------|----------|----------|----------|----------|------|------|
 | M01 | Sequence | ✅ | ✅ | 19/19 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC19 [.perf]) |
 | M02 | QualityScore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC14 [.perf]) |
-| M03 | SequenceStore | ❌ | ❌ | — | ❌ | ❌ | |
+| M03 | SequenceStore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC12 [.perf]) |
 | M04 | GenomicInterval | ❌ | ❌ | — | ❌ | ❌ | |
 | M05 | GenomicRegion | ❌ | ❌ | — | ❌ | ❌ | |
 | M06 | IntervalTree | ❌ | ❌ | — | ❌ | ❌ | |
 
-**Phase 1 统计**: 2/6 模块代码实现完成，共计 33 项测试用例通过，含 2 项性能基准。
+**Phase 1 统计**: 3/6 模块代码实现完成，共计 47 项测试用例通过，含 3 项性能基准。
 
 ### 3.1 M01: Sequence — 测试用例清单
 
@@ -109,6 +109,26 @@
 | TC13 | operator[] returns correct Phred value | quality_score | ✅ PASS |
 | TC14 | Performance test 100M values | quality_score [.perf] | ✅ PASS |
 
+### 3.3 M03: SequenceStore — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | Empty store basic properties | sequence_store | ✅ PASS |
+| TC02 | Single sequence add | sequence_store | ✅ PASS |
+| TC03 | Batch add | sequence_store | ✅ PASS |
+| TC04 | find_by_id found | sequence_store | ✅ PASS |
+| TC05 | find_by_id not found | sequence_store | ✅ PASS |
+| TC06 | N50 single sequence | sequence_store | ✅ PASS |
+| TC07 | N50 equal-length sequences | sequence_store | ✅ PASS |
+| TC08 | N50 uneven sequences — first covers target | sequence_store | ✅ PASS |
+| TC09 | N50 spans multiple sequences | sequence_store | ✅ PASS |
+| TC10 | reserve and clear | sequence_store | ✅ PASS |
+| TC11 | Iterator traversal | sequence_store | ✅ PASS |
+| TC12 | Large-scale performance test (1M sequences) | sequence_store [.perf] | ✅ PASS |
+| — | Add from rvalue via std::move | sequence_store | ✅ PASS |
+| — | Batch add empty vector | sequence_store | ✅ PASS |
+| — | N50 with odd total length | sequence_store | ✅ PASS |
+
 ---
 
 ## 4. Phase 2 — 基本格式 I/O
@@ -139,10 +159,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 2 (11%) |
-| 单元测试完成 | 2 (11%) |
-| 测试用例总数 | 33 |
-| 测试通过总数 | 33 (100%) |
+| 代码实现完成 | 3 (17%) |
+| 单元测试完成 | 3 (17%) |
+| 测试用例总数 | 47 |
+| 测试通过总数 | 47 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -155,7 +175,7 @@
 |------|--------|--------|----------|
 | M01 Sequence | include/libre_bio/core/sequence.h | src/core/sequence.cpp | test/core/sequence_test.cpp |
 | M02 QualityScore | include/libre_bio/core/quality_score.h | src/core/quality_score.cpp | test/core/quality_score_test.cpp |
-| M03 SequenceStore | — | — | — |
+| M03 SequenceStore | include/libre_bio/core/sequence_store.h | src/core/sequence_store.cpp | test/core/sequence_store_test.cpp |
 | M04 GenomicInterval | — | — | — |
 | M05 GenomicRegion | — | — | — |
 | M06 IntervalTree | — | — | — |
@@ -191,3 +211,11 @@
 - CMakeLists.txt 新增 lint / analyze / check_all 目标，工具缺失时优雅降级
 - 创建 .github/workflows/lint.yml：CI 自动执行编译、测试、clang-tidy、cppcheck
 - Phase 0 基础设施完成度：3/6 项 (50%)
+
+### 2026-05-15 (更新) — v0.2.0
+
+- 完成 M03 SequenceStore 实现：14 项测试用例全部通过（含 1 项性能基准 TC12 [.perf]）
+- 新增头文件 include/libre_bio/core/sequence_store.h，实现文件 src/core/sequence_store.cpp，测试文件 test/core/sequence_store_test.cpp
+- CMakeLists.txt 注册 sequence_store.cpp 到 libre_bio_core 库 + sequence_store_test 测试目标 + lint/analyze 静态分析
+- clang-tidy 零新增警告，cppcheck 零警告
+- Phase 1 完成度：3/6 模块 (50%)，共计 47 项测试用例通过，含 3 项性能基准
