@@ -119,8 +119,6 @@ if(CPPCHECK_EXE)
             --inconclusive
             --std=c++17
             --language=c++
-            --suppress=missingIncludeSystem
-            --suppress=unusedFunction
             --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck.suppress
             --error-exitcode=1
             -I ${CMAKE_SOURCE_DIR}/include
