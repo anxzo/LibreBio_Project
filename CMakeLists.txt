@@ -13,6 +13,7 @@ set(LIBREBIO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
 add_library(libre_bio_core STATIC
     src/core/sequence.cpp
+    src/core/quality_score.cpp
 )
 
 target_include_directories(libre_bio_core PUBLIC
@@ -36,6 +37,16 @@ target_link_libraries(sequence_test PRIVATE
     Catch2::Catch2WithMain
 )
 
+add_executable(quality_score_test
+    test/core/quality_score_test.cpp
+)
+
+target_link_libraries(quality_score_test PRIVATE
+    libre_bio_core
+    Catch2::Catch2WithMain
+)
+
 include(CTest)
 include(Catch)
 catch_discover_tests(sequence_test)
+catch_discover_tests(quality_score_test)

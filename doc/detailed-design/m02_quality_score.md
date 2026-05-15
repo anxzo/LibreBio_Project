@@ -115,26 +115,26 @@ enum class PhredEncoding : uint8_t {
   1. 若 scores 为空 → 返回 kUnknown
   2. 遍历所有分数值，记录最小值 min_val
   3. 根据 min_val 判断:
-     若 min_val >= 33 且 min_val < 64  → 返回 kSanger（或 kIllumina18，两者不可区分）
-     若 min_val >= 64 且 min_val <= 126 → 返回 kIllumina13（或 kIllumina15，需检查下限）
-       若存在 min_val == 64 且 score 2 出现在可能位置 → kIllumina15
-       否则 → kIllumina13
-  4. 其他情况 → 返回 kUnknown
+     若 min_val < 33               → 返回 kUnknown（低于 Sanger 最低值）
+     若 33 <= min_val < 64         → 返回 kSanger（或 kIllumina18，两者不可区分）
+     若 min_val == 64              → 返回 kIllumina13（Illumina 1.3+ 的 Phred 0 边界特征）
+     若 min_val > 64               → 返回 kSanger（现代 Sanger 默认，min_val 65+
+                                    不可能来自 Illumina 1.3+ 的合法 Phred 0）
+  4. 无需默认分支（所有 min_val 已被覆盖）
 输出: PhredEncoding
 复杂度: O(n)
 
 详细判断逻辑:
   const uint8_t min_val = *std::min_element(scores.begin(), scores.end());
-  if (min_val < 33) return kUnknown;          // 低于 Sanger 最低值
-  if (min_val < 59) return kSanger;            // 33–58 区间，Sanger/Illumina18
-  if (min_val == 59) return kSanger;           // 59 时也可能是 Illumina15 的 score=2
-  // 但 59 在 Sanger 范围内（Phred 26），且 Illumina 1.5+ 最低为 2 → offset 64 → 66
-  // 实际 detect 逻辑：min_val < 64 → Sanger，min_val >= 64 → Illumina13/15
-  if (min_val >= 64) return kIllumina13;
-  return kUnknown;
+  if (min_val < 33) return kUnknown;                    // 低于 Sanger 最低值
+  if (min_val < 64) return kSanger;                     // 33–63 区间，Sanger/Illumina18
+  if (min_val == 64) return kIllumina13;                // Illumina 1.3+ 的 Phred 0 边界
+  return kSanger;                                       // min_val > 64，保守假设为 Sanger
 
 注意: 精确区分 Sanger 和 Illumina18 不可能（两者 offset 相同），返回 kSanger。
       精确区分 Illumina13 和 Illumina15 不完全可靠，默认返回 kIllumina13。
+      当 min_val > 64 时（如全部 Phred 40 = ASCII 73），无法区分 Sanger 和
+      Illumina13（两者的高分数区间重叠），保守假设为现代通用的 Sanger 方案。
       概要设计未对区分精度提出强制要求。
 ```
 
