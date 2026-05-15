@@ -41,8 +41,8 @@ compile_commands.json
 .#*
 
 # === 核心转储 ===
-core
+/core
 *.core
 
 # === 排除文档 ===
-doc/MISRA-CPP-2023-Guidelines.mdbulid/
+doc/MISRA-CPP-2023-Guidelines.md
