@@ -59,7 +59,8 @@ constexpr auto kRNAComplement = MakeRNAComplementTable();
 
 // 布尔查找表：O(1) 校验单字符是否属于合法字符集
 // 与互补表相同理由：数组直接索引无分支开销，适合长序列扫描
-constexpr std::array<bool, 256> MakeValidateTable(const std::string& valid_chars) noexcept
+// 注意：非 constexpr — std::string 迭代器在 GCC libstdc++ C++17 下不是 constexpr
+std::array<bool, 256> MakeValidateTable(const std::string& valid_chars) noexcept
 {
     std::array<bool, 256> table{};
     for (const char c : valid_chars) {

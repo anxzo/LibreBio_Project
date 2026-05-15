@@ -181,7 +181,7 @@ CheckOptions:
   - key: readability-identifier-length.MinimumParameterNameLength
     value: 2
   - key: readability-identifier-length.IgnoredVariableNames
-    value: "it;rc;qs;gc;id;ok;fd"
+    value: "it;rc;qs;gc;id;ok;fd;s;c"
   - key: readability-identifier-length.IgnoredParameterNames
     value: "id"
 
