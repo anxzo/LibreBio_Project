@@ -1,0 +1,19 @@
+TC01: Normal DNA sequence construction 1 0.00605625
+TC02: Normal RNA sequence construction 1 0.00557308
+TC03: Normal Protein sequence construction 1 0.0051345
+TC04: Empty sequence construction 1 0.00773379
+TC05: sub_seq normal extraction 1 0.00675917
+TC06: sub_seq start out of bounds 1 0.00560421
+TC07: sub_seq length exceeds bounds 1 0.00759021
+TC08: sub_seq count is zero 1 0.00552279
+TC09: DNA reverse complement with space 1 0.00620458
+TC10: RNA reverse complement 1 0.00525021
+TC11: Protein reverse complement returns copy 1 0.00542767
+TC12: gc_content normal 1 0.00593321
+TC13: gc_content all GC 1 0.00554054
+TC14: gc_content no GC 1 0.00512296
+TC15: gc_content mixed case 1 0.00677479
+TC16: validate DNA valid sequence 1 0.00543625
+TC17: validate DNA invalid character 1 0.00645783
+TC18: validate Protein valid sequence 1 0.00645038
+---

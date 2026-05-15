@@ -1,0 +1,5 @@
+if(EXISTS "/Users/ginger/Documents/LibreBio_Project/build/sequence_test-b12d07c_tests.cmake")
+  include("/Users/ginger/Documents/LibreBio_Project/build/sequence_test-b12d07c_tests.cmake")
+else()
+  add_test(sequence_test_NOT_BUILT-b12d07c sequence_test_NOT_BUILT-b12d07c)
+endif()
