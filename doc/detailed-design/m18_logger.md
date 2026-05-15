@@ -1,7 +1,7 @@
 # M18: Logger 详细设计
 
-> **版本**: 0.2.0
-> **日期**: 2026-05-14
+> **版本**: 0.3.0
+> **日期**: 2026-05-15
 > **对应概要设计**: doc/high-level-design.md §3.19
 > **所属层**: CLI Framework
 
@@ -46,24 +46,56 @@ enum class LogLevel : uint8_t {
 
 ```cpp
 class Logger {
+public:
+    void set_level(LogLevel level) noexcept;
+    [[nodiscard]] LogLevel level() const noexcept;
+
+    void error(const std::string& msg);
+    void warning(const std::string& msg);
+    void info(const std::string& msg);
+    void debug(const std::string& msg);
+
+    void progress(uint64_t current, uint64_t total,
+                  const std::string& label = "");
+
+    // 测试支持接口
+    void set_ostream(std::ostream& os) noexcept;
+    void set_tty(bool is_tty) noexcept;
+    void reset_progress_state() noexcept;
+
 private:
-    LogLevel m_level;    // 当前日志级别
-    bool m_is_tty;       // stderr 是否为终端
-    
-    Logger();             // 私有构造，检测 isatty(stderr_fileno)
+    LogLevel m_level;                 // 当前日志级别
+    bool m_is_tty;                    // stderr 是否为终端
+    std::ostream* m_os;               // 输出流指针（默认 &std::cerr）
+    uint64_t m_last_reported_percent; // 非 TTY 上次报告百分比
+
+    Logger();                          // 私有构造，检测 isatty(stderr_fileno)
 };
 ```
 
-### 2.3 便捷宏
+### 2.3 测试支持接口（v0.3.0 新增）
+
+| 方法 | 说明 |
+|------|------|
+| set_ostream(os) | 替换输出流。默认 &std::cerr，测试中替换为 std::ostringstream |
+| set_tty(is_tty) | 覆盖 TTY 自动检测结果，模拟终端/非终端场景 |
+| reset_progress_state() | 重置进度条内部状态（m_last_reported_percent = 0），用于测试隔离 |
+
+### 2.4 便捷宏
 
 ```cpp
 #define LIBRE_BIO_LOG_ERROR(msg)   Logger::instance().error(msg)
 #define LIBRE_BIO_LOG_WARNING(msg) Logger::instance().warning(msg)
 #define LIBRE_BIO_LOG_INFO(msg)    Logger::instance().info(msg)
+
+#ifdef NDEBUG
+#define LIBRE_BIO_LOG_DEBUG(msg)   ((void)0)
+#else
 #define LIBRE_BIO_LOG_DEBUG(msg)   Logger::instance().debug(msg)
+#endif
 ```
 
-宏允许编译期零开销移除日志（如通过 `#ifndef NDEBUG` 条件编译 debug 日志）。
+宏允许编译期零开销移除日志（NDEBUG 下 debug 宏展开为空操作）。
 
 ---
 
@@ -146,32 +178,64 @@ Logger 构造函数:
 
 | 项目 | 内容 |
 |------|------|
-| 输入 | set_level(kWarning) → debug("debug msg"), error("error msg") |
-| 预期 | error 输出，debug 不输出 |
+| 输入 | set_level(kWarning) → debug("debug msg"), info("info msg"), error("error msg") |
+| 预期 | error 和 warning 输出，debug 和 info 不输出 |
 | 类型 | 正常路径 |
 
-#### TC03: 进度条 TTY 模式
+#### TC03: 进度条 TTY 模式带标签
 
 | 项目 | 内容 |
 |------|------|
 | 输入 | progress(50, 100, "处理中")，模拟 m_is_tty=true |
-| 预期 | 输出: "\r[处理中] ████████████████████░░░░░░░░░░░░░░░░░░░░ 50% (50/100)" |
+| 预期 | 输出包含 \\r、[处理中]、50%、(50/100)，不包含 \\n |
+| 类型 | 正常路径 |
+
+#### TC03b: 进度条 TTY 模式不带标签
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | progress(30, 100)，模拟 m_is_tty=true |
+| 预期 | 输出包含 \\r、30%、(30/100)，无标签前缀 |
 | 类型 | 正常路径 |
 
 #### TC04: 进度条非 TTY 模式
 
 | 项目 | 内容 |
 |------|------|
-| 输入 | 模拟 m_is_tty=false，progress(10, 100) → progress(20, 100) → progress(30, 100) |
-| 预期 | progress(10,100) 输出 10% 行，progress(20,100) 输出 20% 行 |
+| 输入 | 模拟 m_is_tty=false，progress(10, 100) |
+| 预期 | 输出 "10% (10/100)\\n" |
 | 类型 | 正常路径 |
 
-#### TC05: 进度条完成
+#### TC04b: 同一 10% 区间不重复输出
 
 | 项目 | 内容 |
 |------|------|
-| 输入 | progress(100, 100, "") |
-| 预期 | 输出 "\n[完成]\n"（TTY 模式也换行） |
+| 输入 | progress(10, 100) → progress(15, 100) |
+| 预期 | 第二次调用不产生输出（仍在 10~19% 区间内） |
+| 类型 | 边界条件 |
+
+#### TC04c: 超过 10% 阈值再次输出
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | progress(10, 100) → progress(20, 100) |
+| 预期 | 第二次调用输出 "20% (20/100)\\n" |
+| 类型 | 正常路径 |
+
+#### TC05: 进度条完成 TTY
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | progress(100, 100)，模拟 m_is_tty=true |
+| 预期 | 输出包含 "完成" 和 \\n（TTY 模式也换行） |
+| 类型 | 边界条件 |
+
+#### TC05b: 进度条完成非 TTY 带标签
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | progress(100, 100, "测试")，模拟 m_is_tty=false |
+| 预期 | 输出 "[测试] 完成\\n" |
 | 类型 | 边界条件 |
 
 #### TC06: 零总量进度
@@ -181,6 +245,46 @@ Logger 构造函数:
 | 输入 | progress(0, 0, "") |
 | 预期 | 不输出，不崩溃 |
 | 类型 | 边界条件 |
+
+#### TC07: set_level / level 读写
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | level() → set_level(kDebug) → level() → set_level(kError) → level() |
+| 预期 | 返回值分别为 kInfo、kDebug、kError |
+| 类型 | 正常路径 |
+
+#### TC08: 便捷宏
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | LIBRE_BIO_LOG_ERROR/LOG_WARNING/LOG_INFO 宏调用 |
+| 预期 | 等价于直接调用 Logger 实例方法 |
+| 类型 | 正常路径 |
+
+#### TC09: kDebug 级别可见
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | set_level(kDebug) → debug/info/error 依次调用 |
+| 预期 | 所有三级消息均输出 |
+| 类型 | 正常路径 |
+
+#### TC10: kError 级别 — 仅 error 可见
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | set_level(kError) → debug/info/warning/error 依次调用 |
+| 预期 | 仅 error 输出，其余三条不输出 |
+| 类型 | 边界条件 |
+
+#### TC11: 进度条完整序列 TTY
+
+| 项目 | 内容 |
+|------|------|
+| 输入 | progress(0, 100) → progress(50, 100) → progress(100, 100) |
+| 预期 | 最终输出包含 "完成" 和 \\r |
+| 类型 | 正常路径 |
 
 ---
 

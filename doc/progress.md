@@ -1,6 +1,6 @@
 # LibreBio — 项目进度追踪
 
-> **当前版本**: 0.5.0
+> **当前版本**: 0.6.0
 > **最后更新**: 2026-05-15
 > **更新者**: LibreBio Team
 
@@ -24,7 +24,7 @@
 
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
-| Phase 0 | 项目基础设施 | 🔶 83% | 🔶 50% | ❌ | ❌ | 33% |
+| Phase 0 | 项目基础设施 | ✅ 100% | ✅ 100% | ❌ | ❌ | 50% |
 | Phase 1 | 核心数据类型 | ✅ 100% | ✅ 100% | ❌ | ❌ | 50% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
@@ -40,7 +40,7 @@
 | MISRA C++:2023 规则配置 | ✅ | — | ❌ | ❌ | .clang-tidy + .cppcheck.suppress 已配置，覆盖 MISRA 子集 |
 | CLI::App 参数解析器 | ✅ | ✅ | ❌ | ❌ | 游标模式 + 组合短选项 + 测试重载 |
 | ToolRegistry 工具注册表 | ✅ | ✅ | ❌ | ❌ | 单例模式 + 静态注册宏 + remove/clear |
-| Logger 日志输出 | ❌ | ❌ | ❌ | ❌ | |
+| Logger 日志输出 | ✅ | ✅ | ❌ | ❌ | TTY 感知 + 进度条 + 便捷宏 |
 | CI 配置 (GitHub Actions) | ✅ | — | ❌ | ❌ | .github/workflows/lint.yml: 编译 + 测试 + 静态分析 |
 
 **Phase 0 模块明细**:
@@ -49,7 +49,7 @@
 |------|------|----------|----------|----------|----------|------|------|
 | M16 | CLI::App | ✅ | ✅ | 19/19 PASS | ❌ | ❌ | 游标模式 + 组合短选项 + 测试重载 |
 | M17 | ToolRegistry | ✅ | ✅ | 6/6 PASS | ❌ | ❌ | 单例模式 + 静态注册宏 + remove/clear |
-| M18 | Logger | ❌ | ❌ | — | ❌ | ❌ | |
+| M18 | Logger | ✅ | ✅ | 15/15 PASS | ❌ | ❌ | TTY 感知 + 进度条 + 便捷宏 |
 
 ---
 
@@ -201,6 +201,28 @@
 
 ---
 
+### 3.8 M18: Logger — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | 基本日志输出 | logger | ✅ PASS |
+| TC02 | 日志级别过滤 | logger | ✅ PASS |
+| TC03 | 进度条 TTY 模式带标签 | logger | ✅ PASS |
+| TC03b | 进度条 TTY 模式不带标签 | logger | ✅ PASS |
+| TC04 | 进度条非 TTY 模式 | logger | ✅ PASS |
+| TC04b | 同一10%区间不重复输出 | logger | ✅ PASS |
+| TC04c | 超过10%阈值再次输出 | logger | ✅ PASS |
+| TC05 | 进度条完成 TTY | logger | ✅ PASS |
+| TC05b | 进度条完成非TTY带标签 | logger | ✅ PASS |
+| TC06 | 零总量进度 | logger | ✅ PASS |
+| TC07 | set_level / level 读写 | logger | ✅ PASS |
+| TC08 | 便捷宏 | logger | ✅ PASS |
+| TC09 | kDebug 级别可见 | logger | ✅ PASS |
+| TC10 | kError 级别 — 仅 error 可见 | logger | ✅ PASS |
+| TC11 | 进度条完整序列 TTY | logger | ✅ PASS |
+
+---
+
 ## 4. Phase 2 — 基本格式 I/O
 
 | 编号 | 模块 | 代码实现 | 单元测试 | 测试用例 | 代码审查 | 文档 | 备注 |
@@ -229,10 +251,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 8 (44%) |
-| 单元测试完成 | 8 (44%) |
-| 测试用例总数 | 114 |
-| 测试通过总数 | 114 (100%) |
+| 代码实现完成 | 9 (50%) |
+| 单元测试完成 | 9 (50%) |
+| 测试用例总数 | 129 |
+| 测试通过总数 | 129 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -260,11 +282,24 @@
 | M15 SequenceIndex | — | — | — |
 | M16 CLI::App | include/libre_bio/cli/app.h | src/cli/app.cpp | test/cli/app_test.cpp |
 | M17 ToolRegistry | include/libre_bio/cli/tool_registry.h | src/cli/tool_registry.cpp | test/cli/tool_registry_test.cpp |
-| M18 Logger | — | — | — |
+| M18 Logger | include/libre_bio/cli/logger.h | src/cli/logger.cpp | test/cli/logger_test.cpp |
 
 ---
 
 ## 8. 变更日志
+
+### 2026-05-15 — v0.6.0
+
+- 完成 M18 Logger 实现：15 项测试用例全部通过
+- 新增头文件 include/libre_bio/cli/logger.h，实现文件 src/cli/logger.cpp，测试文件 test/cli/logger_test.cpp
+- CMakeLists.txt 注册 logger.cpp 到 libre_bio_core 库 + logger_test 测试目标 + lint/analyze 静态分析
+- 采用 Meyer's Singleton 模式，支持 LogLevel 多级过滤（kError/kWarning/kInfo/kDebug）
+- TTY 感知进度条：TTY 模式 \\r 原地刷新，非 TTY 模式每 10% 报告一行
+- 提供 LIBRE_BIO_LOG_ERROR/WARNING/INFO/DEBUG 便捷宏，NDEBUG 下 debug 宏编译期零开销
+- 提供 set_ostream() / set_tty() / reset_progress_state() 测试支持接口
+- clang-tidy 零新增警告，cppcheck 零警告
+- 完整测试通过率：129/129 (100%)
+- Phase 0 完成度：6/6 项 (100%)
 
 ### 2026-05-15 — v0.2.0
 
