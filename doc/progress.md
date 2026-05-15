@@ -25,7 +25,7 @@
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
 | Phase 0 | 项目基础设施 | 🔶 50% | 🔶 17% | ❌ | ❌ | 17% |
-| Phase 1 | 核心数据类型 | 🔶 50% | 🔶 50% | ❌ | ❌ | 25% |
+| Phase 1 | 核心数据类型 | 🔶 67% | 🔶 67% | ❌ | ❌ | 33% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 4+ | CLI 工具 | ⏭ | ⏭ | ⏭ | ⏭ | — |
@@ -60,11 +60,11 @@
 | M01 | Sequence | ✅ | ✅ | 19/19 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC19 [.perf]) |
 | M02 | QualityScore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC14 [.perf]) |
 | M03 | SequenceStore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC12 [.perf]) |
-| M04 | GenomicInterval | ❌ | ❌ | — | ❌ | ❌ | |
+| M04 | GenomicInterval | ✅ | ✅ | 18/18 PASS | ❌ | ❌ | |
 | M05 | GenomicRegion | ❌ | ❌ | — | ❌ | ❌ | |
 | M06 | IntervalTree | ❌ | ❌ | — | ❌ | ❌ | |
 
-**Phase 1 统计**: 3/6 模块代码实现完成，共计 47 项测试用例通过，含 3 项性能基准。
+**Phase 1 统计**: 4/6 模块代码实现完成，共计 65 项测试用例通过。
 
 ### 3.1 M01: Sequence — 测试用例清单
 
@@ -129,6 +129,29 @@
 | — | Batch add empty vector | sequence_store | ✅ PASS |
 | — | N50 with odd total length | sequence_store | ✅ PASS |
 
+### 3.4 M04: GenomicInterval — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | 正常构造 | genomic_interval | ✅ PASS |
+| TC02 | length 计算 | genomic_interval | ✅ PASS |
+| TC03 | 重叠 — 完全包含 | genomic_interval | ✅ PASS |
+| TC04 | 重叠 — 部分重叠 | genomic_interval | ✅ PASS |
+| TC05 | 重叠 — 紧邻但不重叠 | genomic_interval | ✅ PASS |
+| TC06 | 重叠 — 完全分离 | genomic_interval | ✅ PASS |
+| TC07 | 重叠 — 不同染色体 | genomic_interval | ✅ PASS |
+| TC08 | 交集 — 正常 | genomic_interval | ✅ PASS |
+| TC09 | 交集 — 无交集 | genomic_interval | ✅ PASS |
+| TC10 | 包含 — 完全包含 | genomic_interval | ✅ PASS |
+| TC11 | 包含 — 自我 | genomic_interval | ✅ PASS |
+| TC12 | 距离 — 分离 | genomic_interval | ✅ PASS |
+| TC13 | 距离 — 相邻 | genomic_interval | ✅ PASS |
+| TC14 | 距离 — 不同染色体 | genomic_interval | ✅ PASS |
+| TC15 | 比较运算符 — chrom 优先 | genomic_interval | ✅ PASS |
+| TC16 | 比较运算符 — start 比较 | genomic_interval | ✅ PASS |
+| TC17 | 比较运算符 — 相等 | genomic_interval | ✅ PASS |
+| TC18 | 比较运算符 — strand 不同 | genomic_interval | ✅ PASS |
+
 ---
 
 ## 4. Phase 2 — 基本格式 I/O
@@ -159,10 +182,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 3 (17%) |
-| 单元测试完成 | 3 (17%) |
-| 测试用例总数 | 47 |
-| 测试通过总数 | 47 (100%) |
+| 代码实现完成 | 4 (22%) |
+| 单元测试完成 | 4 (22%) |
+| 测试用例总数 | 65 |
+| 测试通过总数 | 65 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -176,7 +199,7 @@
 | M01 Sequence | include/libre_bio/core/sequence.h | src/core/sequence.cpp | test/core/sequence_test.cpp |
 | M02 QualityScore | include/libre_bio/core/quality_score.h | src/core/quality_score.cpp | test/core/quality_score_test.cpp |
 | M03 SequenceStore | include/libre_bio/core/sequence_store.h | src/core/sequence_store.cpp | test/core/sequence_store_test.cpp |
-| M04 GenomicInterval | — | — | — |
+| M04 GenomicInterval | include/libre_bio/core/genomic_interval.h | src/core/genomic_interval.cpp | test/core/genomic_interval_test.cpp |
 | M05 GenomicRegion | — | — | — |
 | M06 IntervalTree | — | — | — |
 | M07 FASTA R/W | — | — | — |
@@ -219,3 +242,11 @@
 - CMakeLists.txt 注册 sequence_store.cpp 到 libre_bio_core 库 + sequence_store_test 测试目标 + lint/analyze 静态分析
 - clang-tidy 零新增警告，cppcheck 零警告
 - Phase 1 完成度：3/6 模块 (50%)，共计 47 项测试用例通过，含 3 项性能基准
+
+### 2026-05-15 (更新) — v0.2.0
+
+- 完成 M04 GenomicInterval 实现：18 项测试用例全部通过
+- 新增头文件 include/libre_bio/core/genomic_interval.h，实现文件 src/core/genomic_interval.cpp，测试文件 test/core/genomic_interval_test.cpp
+- CMakeLists.txt 注册 genomic_interval.cpp 到 libre_bio_core 库 + genomic_interval_test 测试目标 + lint/analyze 静态分析
+- 完整测试通过率：65/65 (100%)，clang-tidy 零新增警告，cppcheck 零警告
+- Phase 1 完成度：4/6 模块 (67%)，共计 65 项测试用例通过
