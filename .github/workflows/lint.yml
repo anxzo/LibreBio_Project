@@ -1,0 +1,57 @@
+# ==============================================================================
+# LibreBio — CI 工作流
+# ==============================================================================
+# 触发条件: push / pull_request 到 main 分支
+# 包含两个作业:
+#   1. build-test — 编译 + 运行单元测试
+#   2. lint       — clang-tidy + cppcheck 静态分析
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure
+
+  lint:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang-tidy cppcheck
+
+      - name: Configure CMake (generate compile_commands.json)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Run clang-tidy
+        run: cmake --build build --target lint
+
+      - name: Run cppcheck
+        run: cmake --build build --target analyze

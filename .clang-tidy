@@ -1,0 +1,208 @@
+# ==============================================================================
+# LibreBio — clang-tidy 配置文件
+# ==============================================================================
+# 用途: 静态分析 C++17 源码，覆盖 MISRA C++:2023 规范子集
+# 版本: 0.2.0
+# 日期: 2026-05-15
+#
+# 设计原则:
+#   1. 以 MISRA C++:2023 Mandatory 规则为最高优先级
+#   2. Required 和 Advisory 规则尽力覆盖
+#   3. 避免与项目既定技术决策冲突（如 -fno-exceptions）
+#   4. 零误报不可能，但应控制在可管理的数量内
+#
+# 运行方式:
+#   clang-tidy -p build/ src/core/sequence.cpp
+#   clang-tidy -p build/ src/**/*.cpp
+# ==============================================================================
+
+---
+# ---------------------------------------------------------------------------
+# Checks 总开关
+# ---------------------------------------------------------------------------
+# Checks 被组织为分组并显式启用，不依赖默认启用的任一别名。
+# 每个分组标注其对应的 MISRA C++:2023 章节映射。
+Checks: >
+  -*,
+
+  # --- MISRA Dir 0.3, 1.0: 语言子集与实现定义行为 ---
+  cert-dcl16-c,
+  cert-dcl37-c,
+  cert-dcl51-cpp,
+  cert-dcl54-cpp,
+  cert-dcl58-cpp,
+  cert-dcl59-cpp,
+  cert-env33-c,
+  cert-flp30-c,
+  cert-msc30-c,
+  cert-oop57-cpp,
+  cert-oop58-cpp,
+
+  # --- MISRA Rule 2.x: 未定义与未指定行为 ---
+  bugprone-unhandled-self-assignment,
+  bugprone-undefined-memory-manipulation,
+
+  # --- MISRA Rule 3.x: 基本概念（声明、定义、作用域）---
+  bugprone-unused-raii,
+  bugprone-unused-return-value,
+  misc-unused-parameters,
+  readability-redundant-declaration,
+  readability-static-accessed-through-instance,
+
+  # --- MISRA Rule 4.x: 标准转换 ---
+  bugprone-narrowing-conversions,
+  bugprone-implicit-widening-of-multiplication-result,
+  bugprone-signed-char-misuse,
+  bugprone-misplaced-widening-cast,
+
+  # --- MISRA Rule 5.x: 类型系统 ---
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-union-access,
+  cppcoreguidelines-pro-type-vararg,
+  cppcoreguidelines-narrowing-conversions,
+
+  # --- MISRA Rule 6.x: 声明 ---
+  cppcoreguidelines-avoid-non-const-global-variables,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-macro-usage,
+  readability-const-return-type,
+  readability-identifier-length,
+  readability-redundant-member-init,
+  readability-redundant-string-init,
+
+  # --- MISRA Rule 7.x: 字面量与常量 ---
+  cppcoreguidelines-avoid-magic-numbers,
+  readability-magic-numbers,
+
+  # --- MISRA Rule 8.x: 表达式 ---
+  bugprone-branch-clone,
+  bugprone-infinite-loop,
+  bugprone-multiple-statement-macro,
+  bugprone-suspicious-missing-comma,
+  bugprone-suspicious-semicolon,
+  bugprone-suspicious-string-compare,
+  bugprone-incorrect-roundings,
+  bugprone-integer-division,
+
+  # --- MISRA Rule 9.x: 语句 ---
+  bugprone-switch-missing-default-case,
+  readability-else-after-return,
+  readability-simplify-boolean-expr,
+
+  # --- MISRA Rule 10.x, 12.x: 运算符 ---
+  bugprone-sizeof-expression,
+  bugprone-sizeof-container,
+  bugprone-misplaced-operator-in-strlen-in-alloc,
+
+  # --- MISRA Rule 14.x: 控制流 ---
+  bugprone-empty-catch,
+  readability-function-cognitive-complexity,
+
+  # --- MISRA Rule 18.x: 资源管理 ---
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-no-malloc,
+  performance-no-automatic-move,
+
+  # --- MISRA Rule 19.x: 预处理指令 ---
+  bugprone-reserved-identifier,
+  bugprone-macro-parentheses,
+
+  # --- 通用现代 C++ 最佳实践 ---
+  modernize-use-override,
+  modernize-use-noexcept,
+  modernize-use-nullptr,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-emplace,
+  modernize-use-using,
+
+  # --- Clang 静态分析器 ---
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*,
+  clang-analyzer-deadcode.*,
+  clang-analyzer-nullability.*,
+  clang-analyzer-security.*,
+  clang-analyzer-unix.*
+
+# ---------------------------------------------------------------------------
+# WarningsAsErrors — 将特定检查提升为错误
+# ---------------------------------------------------------------------------
+WarningsAsErrors: >
+  bugprone-narrowing-conversions,
+  bugprone-signed-char-misuse,
+  bugprone-undefined-memory-manipulation,
+  bugprone-unused-return-value,
+  cert-dcl16-c,
+  cert-dcl37-c,
+  cert-dcl51-cpp,
+  cert-dcl54-cpp,
+  cppcoreguidelines-avoid-non-const-global-variables,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-vararg,
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-no-malloc,
+  cppcoreguidelines-narrowing-conversions
+
+# ---------------------------------------------------------------------------
+# CheckOptions — 检查器行为定制
+# ---------------------------------------------------------------------------
+CheckOptions:
+  # --- 命名约定 ---
+  # 类名: PascalCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  # 函数名: snake_case
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  # 成员变量: m_ 前缀 + snake_case
+  - key: readability-identifier-naming.MemberCase
+    value: lower_case
+  - key: readability-identifier-naming.MemberPrefix
+    value: m_
+  # 常量: k + PascalCase
+  - key: readability-identifier-naming.ConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantPrefix
+    value: k
+  # 枚举: PascalCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  # 全局变量: g_ 前缀
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalConstantPrefix
+    value: k
+
+  # --- 标识符长度 ---
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: 2
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: 2
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: "it;rc;qs;gc;id;ok;fd"
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: "id"
+
+  # --- 函数复杂度 ---
+  # 认知复杂度上限，超过产生警告（非错误）
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 30
+
+  # --- 魔数 ---
+  # 忽略常用常量值：0, 1, -1, 2, 256（256 用于 char 查找表全量遍历）
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: "0;1;2;-1;256"
+  # 头文件中 ignore 供 inline 函数和模板使用
+  - key: cppcoreguidelines-avoid-magic-numbers.IgnoredIntegerValues
+    value: "0;1;2;-1;256"
+
+  # --- 全局变量 ---
+  # constexpr 全局变量不产生警告
+  - key: cppcoreguidelines-avoid-non-const-global-variables.AllowConstexprGlobalVariables
+    value: true
+
+  # --- 杂项 ---
+  - key: misc-unused-parameters.StrictMode
+    value: false

@@ -1,0 +1,35 @@
+# ==============================================================================
+# LibreBio — cppcheck 配置文件
+# ==============================================================================
+# 用途: 对 C++17 源码执行静态分析，补充 clang-tidy 的覆盖盲区
+# 版本: 0.2.0
+# 日期: 2026-05-15
+#
+# 覆盖策略:
+#   - 启用所有 cppcheck 内置检查（默认开启 + 扩展检查选项）
+#   - 压制第三方头文件（Catch2、STL）中的警告
+#   - 压制 MISRA C++:2023 编码规范中已设计规避的场景
+#
+# 运行方式:
+#   cppcheck --project=build/compile_commands.json --enable=all
+#   cppcheck --suppressions-list=.cppcheck.suppress src/
+# ==============================================================================
+
+# cppcheck suppressions 文件（纯文本格式，非 XML）
+#
+# 格式: <id>:<file_pattern>
+#   - 通配 id: * 表示压制所有规则
+#   - file_pattern 支持 glob 模式
+
+# 不检查第三方 FetchContent 下载的 Catch2 代码
+*:*/_deps/*
+
+# 不检查测试文件中的已知条件警告（测试数据本身需要具体值）
+knownConditionTrueFalse:*/test/*
+unreadVariable:*/test/*
+
+# STL 标准库头文件 — cppcheck 无法自动定位 macOS 系统头文件路径
+missingIncludeSystem:*
+
+# 未使用函数 — 单文件分析无法感知测试文件中的调用，属于误报
+unusedFunction:*
