@@ -1,6 +1,6 @@
 # LibreBio — 项目进度追踪
 
-> **当前版本**: 0.4.0
+> **当前版本**: 0.5.0
 > **最后更新**: 2026-05-15
 > **更新者**: LibreBio Team
 
@@ -24,7 +24,7 @@
 
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
-| Phase 0 | 项目基础设施 | 🔶 67% | 🔶 33% | ❌ | ❌ | 25% |
+| Phase 0 | 项目基础设施 | 🔶 83% | 🔶 50% | ❌ | ❌ | 33% |
 | Phase 1 | 核心数据类型 | ✅ 100% | ✅ 100% | ❌ | ❌ | 50% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
@@ -39,7 +39,7 @@
 | CMake 工程骨架 | ✅ | — | ❌ | ❌ | CMakeLists.txt 已就绪，支持 C++17 / Catch2 / lint / analyze 目标 |
 | MISRA C++:2023 规则配置 | ✅ | — | ❌ | ❌ | .clang-tidy + .cppcheck.suppress 已配置，覆盖 MISRA 子集 |
 | CLI::App 参数解析器 | ✅ | ✅ | ❌ | ❌ | 游标模式 + 组合短选项 + 测试重载 |
-| ToolRegistry 工具注册表 | ❌ | ❌ | ❌ | ❌ | |
+| ToolRegistry 工具注册表 | ✅ | ✅ | ❌ | ❌ | 单例模式 + 静态注册宏 + remove/clear |
 | Logger 日志输出 | ❌ | ❌ | ❌ | ❌ | |
 | CI 配置 (GitHub Actions) | ✅ | — | ❌ | ❌ | .github/workflows/lint.yml: 编译 + 测试 + 静态分析 |
 
@@ -48,7 +48,7 @@
 | 编号 | 模块 | 代码实现 | 单元测试 | 测试用例 | 代码审查 | 文档 | 备注 |
 |------|------|----------|----------|----------|----------|------|------|
 | M16 | CLI::App | ✅ | ✅ | 19/19 PASS | ❌ | ❌ | 游标模式 + 组合短选项 + 测试重载 |
-| M17 | ToolRegistry | ❌ | ❌ | — | ❌ | ❌ | |
+| M17 | ToolRegistry | ✅ | ✅ | 6/6 PASS | ❌ | ❌ | 单例模式 + 静态注册宏 + remove/clear |
 | M18 | Logger | ❌ | ❌ | — | ❌ | ❌ | |
 
 ---
@@ -188,6 +188,19 @@
 
 ---
 
+### 3.7 M17: ToolRegistry — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | 注册并查找工具 | tool_registry | ✅ PASS |
+| TC02 | 查找不存在的工具 | tool_registry | ✅ PASS |
+| TC03 | 重复注册后者覆盖 | tool_registry | ✅ PASS |
+| TC04 | 空注册表列表 | tool_registry | ✅ PASS |
+| TC05 | 多工具列表 | tool_registry | ✅ PASS |
+| TC06 | 移除单个工具 | tool_registry | ✅ PASS |
+
+---
+
 ## 4. Phase 2 — 基本格式 I/O
 
 | 编号 | 模块 | 代码实现 | 单元测试 | 测试用例 | 代码审查 | 文档 | 备注 |
@@ -216,10 +229,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 7 (39%) |
-| 单元测试完成 | 7 (39%) |
-| 测试用例总数 | 108 |
-| 测试通过总数 | 108 (100%) |
+| 代码实现完成 | 8 (44%) |
+| 单元测试完成 | 8 (44%) |
+| 测试用例总数 | 114 |
+| 测试通过总数 | 114 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -246,7 +259,7 @@
 | M14 TabixIndex | — | — | — |
 | M15 SequenceIndex | — | — | — |
 | M16 CLI::App | include/libre_bio/cli/app.h | src/cli/app.cpp | test/cli/app_test.cpp |
-| M17 ToolRegistry | — | — | — |
+| M17 ToolRegistry | include/libre_bio/cli/tool_registry.h | src/cli/tool_registry.cpp | test/cli/tool_registry_test.cpp |
 | M18 Logger | — | — | — |
 
 ---
@@ -325,3 +338,16 @@
 - clang-tidy 零新增警告，cppcheck 零警告
 - 完整测试通过率：108/108 (100%)
 - Phase 0 完成度：4/6 项 (67%)
+
+### 2026-05-15 (更新) — v0.5.0
+
+- 完成 M17 ToolRegistry 实现：6 项测试用例全部通过
+- 新增头文件 include/libre_bio/cli/tool_registry.h，实现文件 src/cli/tool_registry.cpp，测试文件 test/cli/tool_registry_test.cpp
+- CMakeLists.txt 注册 tool_registry.cpp 到 libre_bio_core 库 + tool_registry_test 测试目标 + lint/analyze 静态分析
+- 采用 Meyer's Singleton 模式，避免静态初始化顺序问题（SIOF）
+- 提供 LIBRE_BIO_REGISTER_TOOL 静态注册宏，支持编译期工具自注册
+- 新增 remove_tool / clear 接口，支持测试隔离和运行时移除
+- 后者覆盖语义：同名工具重复注册时覆盖前者
+- clang-tidy 零新增警告，cppcheck 零警告
+- 完整测试通过率：114/114 (100%)
+- Phase 0 完成度：5/6 项 (83%)
