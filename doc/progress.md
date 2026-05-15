@@ -25,7 +25,7 @@
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
 | Phase 0 | 项目基础设施 | 🔶 50% | 🔶 17% | ❌ | ❌ | 17% |
-| Phase 1 | 核心数据类型 | 🔶 67% | 🔶 67% | ❌ | ❌ | 33% |
+| Phase 1 | 核心数据类型 | 🔶 83% | 🔶 83% | ❌ | ❌ | 42% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 4+ | CLI 工具 | ⏭ | ⏭ | ⏭ | ⏭ | — |
@@ -61,10 +61,10 @@
 | M02 | QualityScore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC14 [.perf]) |
 | M03 | SequenceStore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC12 [.perf]) |
 | M04 | GenomicInterval | ✅ | ✅ | 18/18 PASS | ❌ | ❌ | |
-| M05 | GenomicRegion | ❌ | ❌ | — | ❌ | ❌ | |
+| M05 | GenomicRegion | ✅ | ✅ | 10/10 PASS | ❌ | ❌ | |
 | M06 | IntervalTree | ❌ | ❌ | — | ❌ | ❌ | |
 
-**Phase 1 统计**: 4/6 模块代码实现完成，共计 65 项测试用例通过。
+**Phase 1 统计**: 5/6 模块代码实现完成，共计 75 项测试用例通过。
 
 ### 3.1 M01: Sequence — 测试用例清单
 
@@ -152,6 +152,21 @@
 | TC17 | 比较运算符 — 相等 | genomic_interval | ✅ PASS |
 | TC18 | 比较运算符 — strand 不同 | genomic_interval | ✅ PASS |
 
+### 3.5 M05: GenomicRegion — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | 基本构造 | genomic_region | ✅ PASS |
+| TC02 | 默认 score | genomic_region | ✅ PASS |
+| TC03 | set_attribute 单个 | genomic_region | ✅ PASS |
+| TC04 | set_attribute 多个 | genomic_region | ✅ PASS |
+| TC05 | get_attribute 未找到 | genomic_region | ✅ PASS |
+| TC06 | set_attribute 覆盖 | genomic_region | ✅ PASS |
+| TC07 | attributes 完整遍历 | genomic_region | ✅ PASS |
+| TC08 | interval 互操作 | genomic_region | ✅ PASS |
+| TC09 | 负 score | genomic_region | ✅ PASS |
+| TC10 | 空 name | genomic_region | ✅ PASS |
+
 ---
 
 ## 4. Phase 2 — 基本格式 I/O
@@ -182,10 +197,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 4 (22%) |
-| 单元测试完成 | 4 (22%) |
-| 测试用例总数 | 65 |
-| 测试通过总数 | 65 (100%) |
+| 代码实现完成 | 5 (28%) |
+| 单元测试完成 | 5 (28%) |
+| 测试用例总数 | 75 |
+| 测试通过总数 | 75 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -200,7 +215,7 @@
 | M02 QualityScore | include/libre_bio/core/quality_score.h | src/core/quality_score.cpp | test/core/quality_score_test.cpp |
 | M03 SequenceStore | include/libre_bio/core/sequence_store.h | src/core/sequence_store.cpp | test/core/sequence_store_test.cpp |
 | M04 GenomicInterval | include/libre_bio/core/genomic_interval.h | src/core/genomic_interval.cpp | test/core/genomic_interval_test.cpp |
-| M05 GenomicRegion | — | — | — |
+| M05 GenomicRegion | include/libre_bio/core/genomic_region.h | src/core/genomic_region.cpp | test/core/genomic_region_test.cpp |
 | M06 IntervalTree | — | — | — |
 | M07 FASTA R/W | — | — | — |
 | M08 FASTQ R/W | — | — | — |
@@ -250,3 +265,13 @@
 - CMakeLists.txt 注册 genomic_interval.cpp 到 libre_bio_core 库 + genomic_interval_test 测试目标 + lint/analyze 静态分析
 - 完整测试通过率：65/65 (100%)，clang-tidy 零新增警告，cppcheck 零警告
 - Phase 1 完成度：4/6 模块 (67%)，共计 65 项测试用例通过
+
+### 2026-05-15 (更新) — v0.2.0
+
+- 完成 M05 GenomicRegion 实现：10 项测试用例全部通过
+- 新增头文件 include/libre_bio/core/genomic_region.h，实现文件 src/core/genomic_region.cpp，测试文件 test/core/genomic_region_test.cpp
+- CMakeLists.txt 注册 genomic_region.cpp 到 libre_bio_core 库 + genomic_region_test 测试目标 + lint/analyze 静态分析
+- 设计采用组合（composition）而非继承，符合 MISRA C++:2023 Rule 11.0.1 继承层次最小化要求
+- clang-tidy 零新增警告，cppcheck 零警告
+- 完整测试通过率：75/75 (100%)
+- Phase 1 完成度：5/6 模块 (83%)
