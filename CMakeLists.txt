@@ -19,6 +19,7 @@ add_library(libre_bio_core STATIC
     src/core/sequence_store.cpp
     src/core/genomic_interval.cpp
     src/core/genomic_region.cpp
+    src/cli/app.cpp
 )
 
 target_include_directories(libre_bio_core PUBLIC
@@ -87,6 +88,15 @@ target_link_libraries(interval_tree_test PRIVATE
     Catch2::Catch2WithMain
 )
 
+add_executable(cli_app_test
+    test/cli/app_test.cpp
+)
+
+target_link_libraries(cli_app_test PRIVATE
+    libre_bio_core
+    Catch2::Catch2WithMain
+)
+
 include(CTest)
 include(Catch)
 catch_discover_tests(sequence_test)
@@ -95,6 +105,7 @@ catch_discover_tests(sequence_store_test)
 catch_discover_tests(genomic_interval_test)
 catch_discover_tests(genomic_region_test)
 catch_discover_tests(interval_tree_test)
+catch_discover_tests(cli_app_test)
 
 # ============================================================================
 # 静态分析工具集成
@@ -124,6 +135,7 @@ if(CLANG_TIDY_EXE)
         src/core/sequence_store.cpp
         src/core/genomic_interval.cpp
         src/core/genomic_region.cpp
+        src/cli/app.cpp
     )
 
     set(LINT_EXTRA_ARGS "")
@@ -159,6 +171,7 @@ if(CPPCHECK_EXE)
         src/core/sequence_store.cpp
         src/core/genomic_interval.cpp
         src/core/genomic_region.cpp
+        src/cli/app.cpp
     )
 
     add_custom_target(analyze

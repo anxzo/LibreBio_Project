@@ -1,7 +1,7 @@
 # M16: CLI::App 详细设计
 
-> **版本**: 0.2.0
-> **日期**: 2026-05-14
+> **版本**: 0.3.0
+> **日期**: 2026-05-15
 > **对应概要设计**: doc/high-level-design.md §3.17
 > **所属层**: CLI Framework
 
@@ -62,6 +62,34 @@ class App::Impl {
     std::vector<std::string> m_positional_values; // 位置参数值
     bool m_parsed;
 };
+```
+
+### 2.3 API 设计：游标模式
+
+`add_option` 采用**游标模式（Cursor Pattern）**：选项自动关联到最后注册的子命令。
+
+```cpp
+app.add_sub_command("seqkit", "序列处理工具");  // 注册子命令，游标指向 seqkit
+app.add_option("-i", "--input", "输入文件", "", true, false);  // 关联到 seqkit
+app.add_option("-v", "--verbose", "详细输出", "", false, true); // 关联到 seqkit
+
+app.add_sub_command("bedops", "区间运算工具");  // 游标切换至 bedops
+app.add_option("-o", "--output", "输出文件");    // 关联到 bedops
+```
+
+**防御机制**：若在未注册任何子命令时调用 `add_option`，函数通过 `std::cerr` 输出警告并立即返回，选项被忽略。防止游标悬空导致的静默错误。
+
+### 2.4 测试重载
+
+为方便测试，提供 `parse(const std::vector<std::string>&)` 重载。内部将 `std::vector<std::string>` 拆解为 `argc/argv` 后转调主解析接口。
+
+```cpp
+// 测试代码中可直接使用：
+app.parse({"tool", "subcmd", "--input", "file.txt"});
+
+// 等价于：
+// const char* argv[] = {"tool", "subcmd", "--input", "file.txt"};
+// app.parse(3, argv);
 ```
 
 ---
@@ -243,3 +271,12 @@ class App::Impl {
 | Rule 5.0.1 | 避免 magic number | 子命令索引使用 constexpr |
 | Rule 8.0.2 | 禁止隐式转换 | argc/argv 安全处理 |
 | Rule 18.0.1 | 禁用异常 | 错误通过返回值报告 |
+
+---
+
+## 7. 变更日志
+
+| 版本 | 日期 | 变更内容 |
+|------|------|----------|
+| 0.3.0 | 2026-05-15 | 新增 API 设计章节（游标模式 + 防御机制）；新增测试重载 parse(vector<string>)；版本号 +1 |
+| 0.2.0 | 2026-05-14 | 初始版本 |
