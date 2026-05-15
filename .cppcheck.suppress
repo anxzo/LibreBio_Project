@@ -9,8 +9,4 @@ unusedFunction:*
 knownConditionTrueFalse:*/test/*
 unreadVariable:*/test/*
 
-# STL 标准库头文件 — cppcheck 无法自动定位 macOS 系统头文件路径
-missingIncludeSystem:*
-
 # 未使用函数 — 单文件分析无法感知测试文件中的调用，属于误报
-unusedFunction:*

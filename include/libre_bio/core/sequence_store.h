@@ -15,6 +15,7 @@
 #define LIBRE_BIO_CORE_SEQUENCE_STORE_H_
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
 namespace libre_bio {

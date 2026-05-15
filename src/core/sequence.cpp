@@ -63,8 +63,8 @@ constexpr auto kRNAComplement = MakeRNAComplementTable();
 std::array<bool, 256> MakeValidateTable(const std::string& valid_chars) noexcept
 {
     std::array<bool, 256> table{};
-    for (const char c : valid_chars) {
-        table[static_cast<unsigned char>(c)] = true;
+    for (const char ch : valid_chars) {
+        table[static_cast<unsigned char>(ch)] = true;
     }
     return table;
 }
@@ -177,8 +177,8 @@ double Sequence::gc_content() const noexcept
     }
 
     size_t gc_count = 0;
-    for (const char c : m_seq) {
-        if (c == 'G' || c == 'C' || c == 'g' || c == 'c') {
+    for (const char ch : m_seq) {
+        if (ch == 'G' || ch == 'C' || ch == 'g' || ch == 'c') {
             ++gc_count;
         }
     }
@@ -199,8 +199,8 @@ bool Sequence::validate() const noexcept
     switch (m_alphabet) {
     case Alphabet::kDNA: {
         static const auto kDNAValid = MakeValidateTable("ACGTNacgtn");
-        for (const char c : m_seq) {
-            if (!kDNAValid[static_cast<unsigned char>(c)]) {
+        for (const char ch : m_seq) {
+            if (!kDNAValid[static_cast<unsigned char>(ch)]) {
                 return false;
             }
         }
@@ -208,8 +208,8 @@ bool Sequence::validate() const noexcept
     }
     case Alphabet::kRNA: {
         static const auto kRNAValid = MakeValidateTable("ACGUNacgun");
-        for (const char c : m_seq) {
-            if (!kRNAValid[static_cast<unsigned char>(c)]) {
+        for (const char ch : m_seq) {
+            if (!kRNAValid[static_cast<unsigned char>(ch)]) {
                 return false;
             }
         }
@@ -218,8 +218,8 @@ bool Sequence::validate() const noexcept
     case Alphabet::kProtein: {
         static const auto kProteinValid = MakeValidateTable(
             "ACDEFGHIKLMNPQRSTVWY*acdefghiklmnpqrstvwy*");
-        for (const char c : m_seq) {
-            if (!kProteinValid[static_cast<unsigned char>(c)]) {
+        for (const char ch : m_seq) {
+            if (!kProteinValid[static_cast<unsigned char>(ch)]) {
                 return false;
             }
         }

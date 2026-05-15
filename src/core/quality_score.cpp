@@ -160,8 +160,8 @@ double QualityScore::average_score() const noexcept
     // double 有效精度约 15 位，可以安全处理 10¹² 量级的累加。
     // 符合 MISRA C++:2023 Dir 0.3.1 对浮点精度使用的建议。
     double sum = 0.0;
-    for (const uint8_t s : m_scores) {
-        sum += static_cast<double>(s - off);
+    for (const uint8_t qv : m_scores) {
+        sum += static_cast<double>(qv - off);
     }
 
     return sum / static_cast<double>(m_scores.size());
@@ -184,8 +184,8 @@ double QualityScore::q30_ratio() const noexcept
     const uint8_t threshold = kQ30Threshold + off;
     size_t count = 0;
 
-    for (const uint8_t s : m_scores) {
-        if (s >= threshold) {
+    for (const uint8_t qv : m_scores) {
+        if (qv >= threshold) {
             ++count;
         }
     }

@@ -102,7 +102,7 @@ if(CLANG_TIDY_EXE)
         COMMAND ${CLANG_TIDY_EXE}
             -p ${CMAKE_BINARY_DIR}
             --config-file=${CMAKE_SOURCE_DIR}/.clang-tidy
-            --header-filter=.*libre_bio.*
+            --header-filter=${CMAKE_SOURCE_DIR}/include/.*
             ${LINT_EXTRA_ARGS}
             ${CLANG_TIDY_SOURCES}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
