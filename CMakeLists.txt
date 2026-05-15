@@ -78,6 +78,15 @@ target_link_libraries(genomic_region_test PRIVATE
     Catch2::Catch2WithMain
 )
 
+add_executable(interval_tree_test
+    test/core/interval_tree_test.cpp
+)
+
+target_link_libraries(interval_tree_test PRIVATE
+    libre_bio_core
+    Catch2::Catch2WithMain
+)
+
 include(CTest)
 include(Catch)
 catch_discover_tests(sequence_test)
@@ -85,6 +94,7 @@ catch_discover_tests(quality_score_test)
 catch_discover_tests(sequence_store_test)
 catch_discover_tests(genomic_interval_test)
 catch_discover_tests(genomic_region_test)
+catch_discover_tests(interval_tree_test)
 
 # ============================================================================
 # 静态分析工具集成

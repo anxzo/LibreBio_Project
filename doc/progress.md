@@ -1,6 +1,6 @@
 # LibreBio — 项目进度追踪
 
-> **当前版本**: 0.2.0
+> **当前版本**: 0.3.0
 > **最后更新**: 2026-05-15
 > **更新者**: LibreBio Team
 
@@ -25,7 +25,7 @@
 | 阶段 | 名称 | 代码实现 | 单元测试 | 代码审查 | 文档 | 整体进度 |
 |------|------|----------|----------|----------|------|----------|
 | Phase 0 | 项目基础设施 | 🔶 50% | 🔶 17% | ❌ | ❌ | 17% |
-| Phase 1 | 核心数据类型 | 🔶 83% | 🔶 83% | ❌ | ❌ | 42% |
+| Phase 1 | 核心数据类型 | ✅ 100% | ✅ 100% | ❌ | ❌ | 50% |
 | Phase 2 | 基本格式 I/O | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 3 | 高级格式 I/O + 索引 | ❌ | ❌ | ❌ | ❌ | 0% |
 | Phase 4+ | CLI 工具 | ⏭ | ⏭ | ⏭ | ⏭ | — |
@@ -62,9 +62,9 @@
 | M03 | SequenceStore | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC12 [.perf]) |
 | M04 | GenomicInterval | ✅ | ✅ | 18/18 PASS | ❌ | ❌ | |
 | M05 | GenomicRegion | ✅ | ✅ | 10/10 PASS | ❌ | ❌ | |
-| M06 | IntervalTree | ❌ | ❌ | — | ❌ | ❌ | |
+| M06 | IntervalTree | ✅ | ✅ | 14/14 PASS | ❌ | ❌ | 含 1 项性能基准测试 (TC07 [.perf]) |
 
-**Phase 1 统计**: 5/6 模块代码实现完成，共计 75 项测试用例通过。
+**Phase 1 统计**: 6/6 模块代码实现完成，共计 89 项测试用例通过。
 
 ### 3.1 M01: Sequence — 测试用例清单
 
@@ -167,6 +167,25 @@
 | TC09 | 负 score | genomic_region | ✅ PASS |
 | TC10 | 空 name | genomic_region | ✅ PASS |
 
+### 3.6 M06: IntervalTree — 测试用例清单
+
+| 编号 | 用例名称 | 标签 | 状态 |
+|------|----------|------|------|
+| TC01 | 空树查询 | interval_tree | ✅ PASS |
+| TC02 | 单节点插入 + 查询命中 | interval_tree | ✅ PASS |
+| TC03 | 单节点插入 + 查询未命中 | interval_tree | ✅ PASS |
+| TC04 | 多节点 — 查询命中多个 | interval_tree | ✅ PASS |
+| TC05 | 多节点 — 查询命中部分 | interval_tree | ✅ PASS |
+| TC06 | 批量 build 构造 | interval_tree | ✅ PASS |
+| TC07 | 批量 build 性能（100万区间） | interval_tree [.perf] | ✅ PASS |
+| TC08 | remove 删除已有节点 | interval_tree | ✅ PASS |
+| TC09 | remove 删除不存在的节点 | interval_tree | ✅ PASS |
+| TC10 | clear 后查询 | interval_tree | ✅ PASS |
+| TC11 | 重复区间插入 | interval_tree | ✅ PASS |
+| TC12 | 大范围查询（全命中） | interval_tree | ✅ PASS |
+| TC13 | query_nearest 基本功能 | interval_tree | ✅ PASS |
+| TC14 | 移动语义 | interval_tree | ✅ PASS |
+
 ---
 
 ## 4. Phase 2 — 基本格式 I/O
@@ -197,10 +216,10 @@
 | 指标 | 数值 |
 |------|------|
 | 模块总数 | 18 |
-| 代码实现完成 | 5 (28%) |
-| 单元测试完成 | 5 (28%) |
-| 测试用例总数 | 75 |
-| 测试通过总数 | 75 (100%) |
+| 代码实现完成 | 6 (33%) |
+| 单元测试完成 | 6 (33%) |
+| 测试用例总数 | 89 |
+| 测试通过总数 | 89 (100%) |
 | 代码审查通过 | 0 |
 | 文档完成 | 0 |
 | 基础设施配置 | .clang-tidy / .cppcheck.suppress / .github/workflows/lint.yml |
@@ -216,7 +235,7 @@
 | M03 SequenceStore | include/libre_bio/core/sequence_store.h | src/core/sequence_store.cpp | test/core/sequence_store_test.cpp |
 | M04 GenomicInterval | include/libre_bio/core/genomic_interval.h | src/core/genomic_interval.cpp | test/core/genomic_interval_test.cpp |
 | M05 GenomicRegion | include/libre_bio/core/genomic_region.h | src/core/genomic_region.cpp | test/core/genomic_region_test.cpp |
-| M06 IntervalTree | — | — | — |
+| M06 IntervalTree | include/libre_bio/core/interval_tree.h | — (模板头文件) | test/core/interval_tree_test.cpp |
 | M07 FASTA R/W | — | — | — |
 | M08 FASTQ R/W | — | — | — |
 | M09 BED R/W | — | — | — |
@@ -275,3 +294,18 @@
 - clang-tidy 零新增警告，cppcheck 零警告
 - 完整测试通过率：75/75 (100%)
 - Phase 1 完成度：5/6 模块 (83%)
+
+### 2026-05-15 (更新) — v0.3.0
+
+- 完成 M06 IntervalTree 实现：14 项测试用例全部通过（含 1 项性能基准 TC07 [.perf]）
+- 新增头文件 include/libre_bio/core/interval_tree.h（模板完整实现，头文件仅）
+- 新增测试文件 test/core/interval_tree_test.cpp
+- CMakeLists.txt 注册 interval_tree_test 测试目标 + catch_discover_tests
+- 实现 query_overlap（O(log n + k) 重叠查询）和 query_nearest（O(log n + k log n) 最近邻查询）
+- 双重增强字段（max_end + min_start）支持最近邻查询的 Best-first 剪枝
+- 移动语义（移动构造/赋值）正确转移节点所有权
+- 内部使用裸指针 new/delete（RAII 封装，MISRA Rule 18.2.1 例外），详细注释说明
+- 更新详细设计文档 m06_interval_tree.md → v0.3.0（补充 query_nearest 算法 + min_start 增强）
+- clang-tidy 零新增警告，cppcheck 零警告
+- 完整测试通过率：89/89 (100%)
+- Phase 1 完成度：6/6 模块 (100%)
