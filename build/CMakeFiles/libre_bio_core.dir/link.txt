@@ -1,2 +1,0 @@
-/usr/bin/ar qc liblibre_bio_core.a CMakeFiles/libre_bio_core.dir/src/core/sequence.cpp.o
-/usr/bin/ranlib liblibre_bio_core.a

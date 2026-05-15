@@ -1,1 +1,0 @@
-/usr/bin/clang++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/sequence_test.dir/test/core/sequence_test.cpp.o -o sequence_test  liblibre_bio_core.a _deps/catch2-build/src/libCatch2Main.a _deps/catch2-build/src/libCatch2.a
